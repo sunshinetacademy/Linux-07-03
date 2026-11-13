@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المحاضرة 3 — الشبكات من جوه Linux | Sunshine T Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --card2:#1c2333;
+    --accent:#00d4aa; --accent2:#ff6b35; --purple:#8b5cf6;
+    --text:#e6edf3; --muted:#8b949e; --warn:#ffd60a; --blue:#4da3ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
+  body{background:var(--bg);color:var(--text);line-height:1.9}
+  .container{max-width:1100px;margin:0 auto;padding:24px}
+
+  /* ===== Progress Bar ===== */
+  .progress-bar{display:flex;gap:8px;justify-content:center;padding:14px;flex-wrap:wrap;
+    background:#0a0e14;border-bottom:1px solid #30363d}
+  .pb{width:120px;height:6px;border-radius:6px;background:#30363d;position:relative}
+  .pb.done{background:var(--accent)}
+  .pb.current{background:linear-gradient(90deg,var(--purple),var(--blue));box-shadow:0 0 12px var(--purple)}
+  .pb span{position:absolute;top:10px;right:50%;transform:translateX(50%);font-size:.65rem;color:var(--muted);white-space:nowrap}
+
+  /* ===== Hero ===== */
+  header{background:linear-gradient(135deg,#0a1440 0%,#1a2a6c 50%,#2e4a9e 100%);
+    padding:50px 20px;text-align:center;border-bottom:3px solid var(--blue)}
+  header .logo{font-size:15px;letter-spacing:2px;color:var(--accent);font-weight:700}
+  header h1{font-size:2.5rem;font-weight:900;margin:12px 0}
+  header h1 span{color:var(--blue)}
+  header .sub{color:#b8c6e8;font-size:1.1rem}
+  .badge-row{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+  .badge{background:rgba(0,212,170,.12);border:1px solid var(--accent);color:var(--accent);
+    padding:6px 18px;border-radius:50px;font-size:.85rem;font-weight:600}
+  .badge.orange{border-color:var(--accent2);color:var(--accent2);background:rgba(255,107,53,.1)}
+  .badge.purple{border-color:var(--purple);color:var(--purple);background:rgba(139,92,246,.12)}
+  .badge.blue{border-color:var(--blue);color:var(--blue);background:rgba(77,163,255,.12)}
+
+  /* ===== Sections ===== */
+  section{margin:36px 0}
+  h2{font-size:1.7rem;font-weight:900;margin-bottom:18px;display:flex;align-items:center;gap:12px}
+  h2 .num{background:var(--blue);color:#000;min-width:42px;height:42px;border-radius:12px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900}
+  h3{color:var(--accent);font-size:1.2rem;margin:16px 0 8px}
+
+  .card{background:var(--card);border:1px solid #30363d;border-radius:16px;padding:24px;margin-bottom:18px}
+  .card.orange{border-right:4px solid var(--accent2)}
+  .card.green{border-right:4px solid var(--accent)}
+  .card.yellow{border-right:4px solid var(--warn)}
+  .card.purple{border-right:4px solid var(--purple)}
+  .card.blue{border-right:4px solid var(--blue)}
+
+  /* ===== Terminal ===== */
+  .terminal{background:#0a0e14;border:1px solid #30363d;border-radius:12px;overflow:hidden;margin:16px 0}
+  .term-bar{background:#21262d;padding:8px 16px;display:flex;gap:8px;align-items:center}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .red{background:#ff5f56}.yel{background:#ffbd2e}.grn{background:#27c93f}
+  .term-title{color:var(--muted);font-size:.8rem;margin-right:10px;font-family:'JetBrains Mono',monospace}
+  .term-body{padding:18px;font-family:'JetBrains Mono',monospace;font-size:.9rem;direction:ltr;text-align:left}
+  .prompt{color:#27c93f}
+  .cmd{color:#e6edf3}
+  .comment{color:#8b949e}
+  .output{color:#79c0ff}
+  .error{color:#ff7b72}
+  .term-body .line{margin-bottom:6px}
+
+  /* ===== Tables ===== */
+  table{width:100%;border-collapse:collapse;margin:14px 0}
+  th{background:var(--card2);color:var(--blue);padding:12px;font-size:.95rem}
+  td{padding:11px 14px;border-bottom:1px solid #30363d;font-size:.93rem}
+  tr:hover td{background:rgba(77,163,255,.05)}
+  code.inline{background:#21262d;color:var(--accent);padding:2px 8px;border-radius:6px;
+    font-family:'JetBrains Mono',monospace;font-size:.85rem;direction:ltr;display:inline-block}
+
+  /* ===== Callouts ===== */
+  .callout{border-radius:12px;padding:18px 20px;margin:16px 0;display:flex;gap:14px;align-items:flex-start}
+  .callout .icon{font-size:1.6rem}
+  .callout.warn{background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.4)}
+  .callout.info{background:rgba(77,163,255,.08);border:1px solid rgba(77,163,255,.4)}
+  .callout.success{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.4)}
+  .callout.danger{background:rgba(255,95,86,.08);border:1px solid rgba(255,95,86,.4)}
+
+  /* ===== Objectives ===== */
+  .objectives{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+  .obj{background:var(--card2);border-radius:12px;padding:18px;text-align:center;border-top:3px solid var(--blue)}
+  .obj .emoji{font-size:2rem}
+  .obj p{font-size:.9rem;margin-top:8px}
+
+  /* ===== Analogy Cards ===== */
+  .analogy{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:16px 0}
+  .an{background:var(--card2);border-radius:12px;padding:18px;border:1px dashed #30363d}
+  .an .icon{font-size:2rem}
+  .an h4{color:var(--blue);margin:8px 0 6px}
+  .an p{font-size:.9rem;color:var(--muted)}
+
+  /* ===== Packet Journey Visual ===== */
+  .journey{display:flex;align-items:center;justify-content:center;gap:0;margin:22px 0;flex-wrap:wrap}
+  .j-node{background:var(--card2);border:2px solid var(--blue);border-radius:14px;padding:14px 18px;
+    text-align:center;min-width:120px}
+  .j-node .emoji{font-size:1.8rem}
+  .j-node .lbl{font-size:.8rem;color:var(--muted)}
+  .j-node .ip{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);direction:ltr}
+  .j-arrow{color:var(--warn);font-size:1.5rem;padding:0 10px;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+  /* ===== Steps ===== */
+  .step{display:flex;gap:16px;margin-bottom:18px;align-items:flex-start}
+  .step .n{background:var(--purple);color:#fff;min-width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:900}
+  .step .content h4{color:var(--accent2)}
+  .step .content p{font-size:.95rem;color:var(--muted)}
+
+  /* ===== Quiz ===== */
+  .quiz{background:var(--card2);border-radius:12px;padding:18px;margin:14px 0;cursor:pointer;
+    border:1px solid #30363d;transition:.3s}
+  .quiz:hover{border-color:var(--accent)}
+  .quiz .q{font-weight:700}
+  .quiz .options{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .quiz button{background:#21262d;border:1px solid #30363d;color:var(--text);padding:8px 20px;
+    border-radius:8px;cursor:pointer;font-family:'Cairo';font-size:.9rem;transition:.3s}
+  .quiz button:hover{border-color:var(--accent);color:var(--accent)}
+  .quiz button.correct{background:rgba(0,212,170,.2);border-color:var(--accent);color:var(--accent)}
+  .quiz button.wrong{background:rgba(255,95,86,.2);border-color:#ff5f56;color:#ff7b72}
+  .quiz .feedback{margin-top:10px;font-size:.9rem;display:none}
+
+  /* ===== Recap ===== */
+  .recap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .recap{background:var(--card2);border-radius:12px;padding:16px;border-right:3px solid var(--blue)}
+  .recap b{color:var(--blue)}
+
+  /* ===== Game ===== */
+  .game{background:linear-gradient(135deg,#0f2419 0%,#164a35 100%);border:1px solid var(--accent);
+    border-radius:16px;padding:26px;margin:20px 0}
+
+  /* ===== Bilingual Term ===== */
+  .bi-term{display:inline-flex;align-items:center;gap:8px;background:rgba(77,163,255,.1);
+    border:1px solid rgba(77,163,255,.4);border-radius:10px;padding:4px 14px;margin:4px}
+  .bi-term .ar{font-weight:900;color:var(--blue)}
+  .bi-term .en{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--muted);direction:ltr}
+
+  footer{text-align:center;padding:30px;color:var(--muted);border-top:1px solid #30363d;margin-top:40px}
+  footer .brand{color:var(--accent);font-weight:900}
+</style>
+</head>
+<body>
+
+<!-- شريط تقدم الكورس -->
+<div class="progress-bar">
+  <div class="pb done"><span>L1: Terminal ✓</span></div>
+  <div class="pb done"><span>L2: الصلاحيات ✓</span></div>
+  <div class="pb current"><span>L3: الشبكات ← أنت هنا</span></div>
+  <div class="pb"><span>L4: Nmap</span></div>
+  <div class="pb"><span>L5: Wireshark</span></div>
+  <div class="pb"><span>L6: كلمات السر</span></div>
+  <div class="pb"><span>L7: المشروع 🏆</span></div>
+</div>
+
+<header>
+  <div class="logo">☀️ SUNSHINE T ACADEMY — LEVEL 3</div>
+  <h1>المحاضرة 3: <span>الشبكات من جوه Linux</span> 🌐</h1>
+  <div class="sub">«أنا مين في الشبكة؟» — أول خطوة في رسم خرائط الشبكات كالمحللين المحترفين</div>
+  <div class="badge-row">
+    <div class="badge">⏱️ 120 دقيقة</div>
+    <div class="badge orange">👥 أعمار 12–15</div>
+    <div class="badge blue">🗺️ فيها رسم خريطة شبكة حقيقية</div>
+    <div class="badge purple">🏁 وفيها سباق Ping!</div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ========== أهداف المحاضرة ========== -->
+<section>
+  <h2><span class="num">🎯</span> أهداف المحاضرة</h2>
+  <div class="objectives">
+    <div class="obj"><div class="emoji">🪪</div><p>يعرف عنوان جهازه في الشبكة وبطاقة الشبكة بتاعته</p></div>
+    <div class="obj"><div class="emoji">🗺️</div><p>يفهم دور الـ Gateway والـ DNS في وصول البيانات</p></div>
+    <div class="obj"><div class="emoji">📡</div><p>يتقن ping و traceroute لاختبار الاتصال وتتبع المسار</p></div>
+    <div class="obj"><div class="emoji">🗺️</div><p>يرسم أول Network Map حقيقية لشبكة اللاب</p></div>
+  </div>
+</section>
+
+<!-- ========== 1: ربط بالماضي ========== -->
+<section>
+  <h2><span class="num">1</span> افتتاحية: نفس العلم... لعبة جديدة 🎮</h2>
+  <div class="card blue">
+    <p>في المستوى التاني اخدنا Nmap و Wireshark على <b>Windows</b>، واستخدمنا أمر زي <code class="inline">ipconfig</code> لنعرف معلومات الشبكة. النهاردة هننقل نفس المهارات لعالم Linux — <b>نفس الأفكار بالظبط، بس بأسماء وأدوات أقوى</b>:</p>
+    <table>
+      <tr><th>🎯 المهمة</th><th>🪟 على Windows</th><th>🐧 على Linux</th></tr>
+      <tr><td>معلومات شبكتي</td><td><code class="inline">ipconfig</code></td><td><code class="inline">ip a</code></td></tr>
+      <tr><td>في اتصال؟</td><td><code class="inline">ping</code></td><td><code class="inline">ping</code> (نفسه!)</td></tr>
+      <tr><td>تتبع المسار</td><td><code class="inline">tracert</code></td><td><code class="inline">traceroute</code></td></tr>
+      <tr><td>الجدول المساري</td><td><code class="inline">route print</code></td><td><code class="inline">ip route</code></td></tr>
+    </table>
+    <p style="margin-top:12px">💡 <b>سر مهم:</b> اللي بيفهم المفهوم مش بيفرق معاه الأداة. إحنا بنكبر في <b>الفهم</b> — والأدوات بتتغير.</p>
+  </div>
+</section>
+
+<!-- ========== 2: هوية الشبكة ========== -->
+<section>
+  <h2><span class="num">2</span> هويتك في الشبكة — بطاقة الرقم الشخصي 🪪</h2>
+
+  <p style="margin-bottom:14px">عشان الجهاز يقدر يتواصل، محتاج 4 معلومات أساسية — كلها زي بياناتك في المدرسة:</p>
+  <div class="analogy">
+    <div class="an"><div class="icon">🏠</div><h4>IP Address</h4><p>عنوان بيتك في الشبكة — زي رقم شقتك. جيرانك (نفس الشبكة) كلهم عناوينهم شبه بعض: <code class="inline">192.168.1.x</code></p></div>
+    <div class="an"><div class="icon">🎭</div><h4>Subnet Mask</h4><p>بتحدد "الحي" اللي انت ساكن فيه — مين جارك ومين برة الحي. زي حدود الحي على الخريطة.</p></div>
+    <div class="an"><div class="icon">🚪</div><h4>Gateway</h4><p>البوابة الوحيدة الخارجة من حارتك للعالم الخارجي — عادةً الراوتر. لو مش رايح منه... مش هتخرج من الحتة دي!</p></div>
+    <div class="an"><div class="icon">📖</div><h4>DNS</h4><p>دليل التليفون بتاع الإنترنت — بترجم أسماء المواقع (<code class="inline">google.com</code>) لأرقام IPs. من غيره هتفكر المواقع بأرقام! 😵</p></div>
+  </div>
+
+  <div class="callout info">
+    <div class="icon">🎓</div>
+    <div><b>مصطلحات النهاردة (احفظها بالإنجليزي — دي لغة الشغل):</b><br>
+    <span class="bi-term"><span class="ar">بطاقة الشبكة</span><span class="en">Network Interface</span></span>
+    <span class="bi-term"><span class="ar">العنوان</span><span class="en">IP Address</span></span>
+    <span class="bi-term"><span class="ar">البوابة</span><span class="en">Gateway</span></span>
+    <span class="bi-term"><span class="ar">خادم الأسماء</span><span class="en">DNS Server</span></span></div>
+  </div>
+
+  <h3>🔌 الـ Interfaces — أطراف الجهاز اللي بتكلم منها</h3>
+  <div class="card">
+    <table>
+      <tr><th>الاسم</th><th>معناه</th><th>مثال</th></tr>
+      <tr><td><code class="inline">eth0</code></td><td>Ethernet — كابل الشبكة السلكي 🖼️</td><td>اللاب توب موصول بكابل</td></tr>
+      <tr><td><code class="inline">wlan0</code></td><td>WLAN — الواي فاي 📡</td><td>الواي فاي في البيت</td></tr>
+      <tr><td><code class="inline">lo</code></td><td>Loopback — جهاز بيكلم نفسه! عنوانه دايمًا <code class="inline">127.0.0.1</code></td><td>مفيد لاختبار الخدمات محليًا</td></tr>
+    </table>
+    <p>💡 <b>معلومة المحترفين:</b> لما تشتغل على Kali في اختبار حقيقي، أول سؤال تسأله لنفسك: "أنا متوصل بإزاي؟ سلكي ولا واي فاي؟ ومن أنهي interface؟" — الجواب بيحدد كل خطواتك الجاية.</p>
+  </div>
+</section>
+
+<!-- ========== 3: رحلة الحزمة ========== -->
+<section>
+  <h2><span class="num">3</span> رحلة الحزمة — البيانات بتسافر إزاي؟ ✈️</h2>
+
+  <div class="card green">
+    <p>لما تفتح <code class="inline">google.com</code>، حزمة بيانات بتعمل رحلة كاملة — شوفها بعينك:</p>
+    <div class="journey">
+      <div class="j-node"><div class="emoji">💻</div><div class="lbl">جهازك</div><div class="ip">192.168.1.10</div></div>
+      <div class="j-arrow">➡️</div>
+      <div class="j-node"><div class="emoji">🚪</div><div class="lbl">Gateway</div><div class="ip">192.168.1.1</div></div>
+      <div class="j-arrow">➡️</div>
+      <div class="j-node"><div class="emoji">🌐</div><div class="lbl">الإنترنت</div><div class="ip">ISP</div></div>
+      <div class="j-arrow">➡️</div>
+      <div class="j-node"><div class="emoji">📖</div><div class="lbl">DNS</div><div class="ip">8.8.8.8</div></div>
+      <div class="j-arrow">➡️</div>
+      <div class="j-node"><div class="emoji">🏢</div><div class="lbl">Google</div><div class="ip">142.250.x.x</div></div>
+    </div>
+    <p>🧠 <b>نقاش مع الطلبة:</b> لو الـ Gateway وقع — تعرف تطلع للإنترنت؟ (لأ!) لو الـ DNS وقع؟ (هتقدر تبعت لكن مش هتعرف عنوان الموقع!) — وده اللي بيخلي محلل الأمن يسأل دايمًا: <b>إيه نقاط الفشل المحتملة في الشبكة؟</b></p>
+  </div>
+
+  <div class="callout warn">
+    <div class="icon">🔐</div>
+    <div><b>تذكير بالقاعدة الذهبية:</b> كل أوامر النهاردة بنستخدمها على شبكة اللاب المعزولة و على الإنترنت بشكل طبيعي (زي ping لمواقع مشهورة) — <b>ممنوع نهائيًا</b> فحص أو إزعاج أي شبكة أو جهاز خارجي. الفحص بيبقى بالأدوات في محاضرة Nmap الجاية، وداخل اللاب بس!</div>
+  </div>
+</section>
+
+<!-- ========== 4: الأوامر ========== -->
+<section>
+  <h2><span class="num">4</span> 💻 الأوامر الأربعة الذهبية للشبكات</h2>
+
+  <div class="card">
+    <h3>1️⃣ <code class="inline">ip a</code> — هويتي الكاملة</h3>
+    <div class="terminal"><div class="term-bar"><div class="dot red"></div><div class="dot yel"></div><div class="dot grn"></div><span class="term-title">kali@sunshine</span></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">kali@sunshine:~$</span> <span class="cmd">ip a</span></div>
+        <div class="line"><span class="output">1: lo: &lt;LOOPBACK,UP&gt; mtu 65536</span></div>
+        <div class="line"><span class="output">    inet 127.0.0.1/8 scope host lo</span></div>
+        <div class="line"><span class="output">2: eth0: &lt;BROADCAST,MULTICAST,UP&gt; mtu 1500</span></div>
+        <div class="line"><span class="output">    inet 192.168.1.50/24 brd 192.168.1.255</span></div>
+        <div class="line"><span class="comment"># eth0 عنوانه 192.168.1.50 والشبكة /24</span></div>
+      </div>
+    </div>
+    <p>🔎 <b>اقراها كده:</b> <code class="inline">UP</code> = البطاقة شغالة ✅ | <code class="inline">inet</code> = عنوان IP4 | <code class="inline">/24</code> = Subnet Mask 255.255.255.0 (افتكرنا المستوى الأول!)</p>
+  </div>
+
+  <div class="card">
+    <h3>2️⃣ <code class="inline">ip route</code> — إزاي أخرج من هنا؟</h3>
+    <div class="terminal"><div class="term-bar"><div class="dot red"></div><div class="dot yel"></div><div class="dot grn"></div></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">kali@sunshine:~$</span> <span class="cmd">ip route</span></div>
+        <div class="line"><span class="output">default via 192.168.1.1 dev eth0</span></div>
+        <div class="line"><span class="output">192.168.1.0/24 dev eth0 proto kernel</span></div>
+        <div class="line"><span class="comment"># default via = الـ Gateway: كل ما هتخرج بره، عدّي من 192.168.1.1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>3️⃣ <code class="inline">ping</code> — "يلا جاوبني!" 📢</h3>
+    <div class="terminal"><div class="term-bar"><div class="dot red"></div><div class="dot yel"></div><div class="dot grn"></div></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">kali@sunshine:~$</span> <span class="cmd">ping -c 4 8.8.8.8</span></div>
+        <div class="line"><span class="output">64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=14.2 ms</span></div>
+        <div class="line"><span class="output">64 bytes from 8.8.8.8: icmp_seq=2 ttl=118 time=13.8 ms</span></div>
+        <div class="line"><span class="comment"># time = زمن الذهاب والعودة (RTT) — كل ما يقل، كل ما كنت أسرع</span></div>
+        <div class="line"></div>
+        <div class="line"><span class="prompt">kali@sunshine:~$</span> <span class="cmd">ping -c 2 192.168.1.200</span></div>
+        <div class="line"><span class="error">From 192.168.1.50 icmp_seq=1 Destination Host Unreachable</span></div>
+        <div class="line"><span class="comment"># الجهاز ده مش موجود أو مقفول — أول علامة نلاحظها في الفحص!</span></div>
+      </div>
+    </div>
+    <p>💡 في Windows الـ ping بيوقف لوحده، في Linux لازم <code class="inline">-c 4</code> (عدد المحاولات) أو <code class="inline">Ctrl+C</code> للإيقاف. <b>ping بيجاوب على ICMP</b> — افتكروا بروتوكول الوشاية ده من Wireshark؟ 😉</p>
+  </div>
+
+  <div class="card">
+    <h3>4️⃣ <code class="inline">traceroute</code> — تتبع رحلة الحزمة خطوة بخطوة 🗺️</h3>
+    <div class="terminal"><div class="term-bar"><div class="dot red"></div><div class="dot yel"></div><div class="dot grn"></div></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">kali@sunshine:~$</span> <span class="cmd">traceroute google.com</span></div>
+        <div class="line"><span class="output"> 1  192.168.1.1        1.2 ms   ← الراوتر بتاعنا (Gateway)</span></div>
+        <div class="line"><span class="output"> 2  10.10.0.1          8.5 ms   ← شبكة مزود الخدمة</span></div>
+        <div class="line"><span class="output"> 3  41.62.x.x         12.1 ms   ← شبكات أجنبية...</span></div>
+        <div class="line"><span class="output"> 8  142.250.x.x      15.3 ms   ← وصلنا Google! 🎉</span></div>
+      </div>
+    </div>
+    <p>💡 كل سطر = جهاز (Hop) الحزمة عدت منه. المحلل الأمني بيستخدمه يفهم <b>المسار</b>، والمهندس بيستخدمه يعرف <b>فين وقع الاتصال</b>!</p>
+  </div>
+
+  <div class="card yellow">
+    <h3>5️⃣ بونص: <code class="inline">cat /etc/resolv.conf</code> — مين اللي بيترجم الأسماء؟</h3>
+    <div class="terminal"><div class="term-bar"><div class="dot red"></div><div class="dot yel"></div><div class="dot grn"></div></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">kali@sunshine:~$</span> <span class="cmd">cat /etc/resolv.conf</span></div>
+        <div class="line"><span class="output">nameserver 192.168.1.1</span></div>
+        <div class="line"><span class="comment"># الـ DNS بتاعنا هو الراوتر نفسه — وبيعدي الترجمة لمزود الخدمة</span></div>
+      </div>
+    </div>
+    <p>💡 درس أمني صغير: لو حد غيّر الـ DNS بتاعك في ملف ده — ممكن يخطفك لمواقع مزيفة! (اسم الهجوم: <b>DNS Spoofing</b> — هنشوفه عملي في Wireshark قريب 🔮)</p>
+  </div>
+</section>
+
+<!-- ========== 5: اللعبة ========== -->
+<section>
+  <h2><span class="num">5</span> 🏁 لعبة اليوم: سباق الـ Ping</h2>
+
+  <div class="game">
+    <h3>🏁 القواعد</h3>
+    <p>3 جولات — كل طالب/فريق عنده Terminal جاهز:</p>
+    <div class="step" style="margin-top:14px"><div class="n">1</div><div class="content"><h4>الجولة 1 — سرعة التنفيذ ⚡</h4><p>المدرّس يعلن هدفًا (مثلًا: جهاز زميلك). أول واحد يعمل <code class="inline">ping -c 4</code> له ويعرض النتيجة = نقطة</p></div></div>
+    <div class="step"><div class="n">2</div><div class="content"><h4>الجولة 2 — التخمين الذكي 🧠</h4><p>قبل أي فحص: خمّن الـ RTT لـ 8.8.8.8 (أقرب للإجابة يكسب). بعدها جرب بالفعل — اللي تخمينه أدق = نقطة</p></div></div>
+    <div class="step"><div class="n">3</div><div class="content"><h4>الجولة 3 — عمق المسار 🗺️</h4><p>شغّل <code class="inline">traceroute</code> لموقع مشهور وسجّل: كام Hop؟ إيه أكبر زمن في المسار؟ أدق تقرير = نقطة</p></div></div>
+    <p style="margin-top:14px;color:var(--accent)"><b>🏆 الفائز بلقب "Network Scout" (كشاف الشبكة) لأسبوع!</b></p>
+  </div>
+</section>
+
+<!-- ========== 6: التمارين ========== -->
+<section>
+  <h2><span class="num">🛠️</span> التمرين الرئيسي — خريطة شبكة اللاب 🗺️ (45 دقيقة)</h2>
+
+  <div class="card green">
+    <h3>🎯 السيناريو: أنت محلل شبكات — موّقن الشبكة دي</h3>
+    <p>المدرّس حوّل اللاب لشبكة معزولة. مهمتك: اكتشف <b>كل جهاز</b> فيها وارسمها:</p>
+
+    <div class="step" style="margin-top:14px"><div class="n">1</div><div class="content"><h4>اجمع هويتك الأول</h4><p><code class="inline">ip a</code> و <code class="inline">ip route</code> — سجّل: عنوانك، الـ interface، الـ Gateway</p></div></div>
+    <div class="step"><div class="n">2</div><div class="content"><h4>اكتشف جيرانك</h4><p>اعمل <code class="inline">ping</code> لعناوين قريبة من عنوانك (مثلًا لو عنوانك 192.168.10.20 — جرب .1 و .10 و .100 حتى تلاقي أجهزة حية)<br>💡 ملاحظة المحترفين: كل جهاز بيرد = جهاز حي في الشبكة. اللي مش بيرد = مش موجود أو مقفول</p></div></div>
+    <div class="step"><div class="n">3</div><div class="content"><h4>وثّق كل جهاز لقيته</h4><p>في ملف <code class="inline">nano network_map.txt</code> سجّل لكل جهاز: عنوانه + زمن الـ ping + ملاحظتك (راوتر؟ جهاز زميل؟)</p></div></div>
+    <div class="step"><div class="n">4</div><div class="content"><h4>ارسم الخريطة 🎨</h4><p>على ورقة أو على السبورة: ارسم أجهزة اللاب كلها كدواير، والـ Gateway في النص، ووصّل بخطوط. اكتب العناوين على كل جهاز</p></div></div>
+    <div class="step"><div class="n">5</div><div class="content"><h4>اختبر خريطتك</h4><p>قارن خريطتك مع زمايلك — مين اكتشف أجهزة أكتر؟ إيه الأجهزة اللي اتفقوا عليها كلهم؟</p></div></div>
+  </div>
+
+  <div class="callout info">
+    <div class="icon">🚀</div>
+    <div><b>التطوير الجاي (معلقة تشويقية):</b> انتوا الـ ping ده جهاز جهاز — تعب، صح؟ 😅<br>
+    في محاضرة Nmap الجاية، أمر واحد <code class="inline">nmap -sn</code> هيكتشف <b>الشبكة كلها في ثواني</b>. النهاردة اتعلمت <b>اللي بتحته</b> — والمحترف بيفاه الأداة قبل ما يستخدمها!</div>
+  </div>
+
+  <div class="card green">
+    <h3>🏋️ تمرين إضافي (لو الوقت سمح): مفتش الاتصال 🔍</h3>
+    <p>زميلك هيقطع كابل الشبكة (أو يطفى الواي فاي) — إنت مهمتك تشخيص المشكلة بالترتيب المحترف:</p>
+    <div class="terminal"><div class="term-bar"><div class="dot red"></div><div class="dot yel"></div><div class="dot grn"></div></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">$</span> <span class="cmd">ip a</span>              <span class="comment"># البطاقة لسه UP؟ فيه عنوان IP؟</span></div>
+        <div class="line"><span class="prompt">$</span> <span class="cmd">ping -c 2 192.168.1.1</span>  <span class="comment"># الـ Gateway بيرد؟</span></div>
+        <div class="line"><span class="prompt">$</span> <span class="cmd">ping -c 2 8.8.8.8</span>   <span class="comment"># الإنترنت الخارجي شغال؟</span></div>
+        <div class="line"><span class="prompt">$</span> <span class="cmd">ping -c 2 google.com</span> <span class="comment"># الـ DNS بيترجم صح؟</span></div>
+      </div>
+    </div>
+    <p>🎯 <b>الدرس:</b> المحترف ما يقولش "النت مش شغال" — المحترف يقول <b>فين بالظبط اتقطعت السلسلة</b>! دي أشهر مهارة بيها يتوظف مهندس الدعم الفني.</p>
+  </div>
+</section>
+
+<!-- ========== 7: كويز ========== -->
+<section>
+  <h2><span class="num">5</span> 🧠 اختبر نفسك — كويز تفاعلي</h2>
+
+  <div class="quiz" id="q1">
+    <div class="q">❓ سؤال 1: عنوان الـ Loopback <code class="inline">lo</code> دايمًا إيه؟</div>
+    <div class="options">
+      <button onclick="ans(this,'q1',false)">192.168.1.1</button>
+      <button onclick="ans(this,'q1',true)">127.0.0.1</button>
+      <button onclick="ans(this,'q1',false)">8.8.8.8</button>
+    </div>
+    <div class="feedback" id="f1"></div>
+  </div>
+
+  <div class="quiz" id="q2">
+    <div class="q">❓ سؤال 2: الـ Gateway هو...؟</div>
+    <div class="options">
+      <button onclick="ans(this,'q2',false)">اسم مواقعك المفضلة</button>
+      <button onclick="ans(this,'q2',true)">البوابة الخارجة من شبكتك المحلية 🚪</button>
+      <button onclick="ans(this,'q2',false)">كلمة السر بتاعة الراوتر</button>
+    </div>
+    <div class="feedback" id="f2"></div>
+  </div>
+
+  <div class="quiz" id="q3">
+    <div class="q">❓ سؤال 3: ping رد بـ <code class="inline">Destination Host Unreachable</code> — معناه إيه؟</div>
+    <div class="options">
+      <button onclick="ans(this,'q3',false)">الإنترنت فصل عن العالم</button>
+      <button onclick="ans(this,'q3',true)">الجهاز المطلوب مش موجود أو مش بيرد 🚫</button>
+      <button onclick="ans(this,'q3',false)">كلمة السر غلط</button>
+    </div>
+    <div class="feedback" id="f3"></div>
+  </div>
+
+  <div class="quiz" id="q4">
+    <div class="q">❓ سؤال 4: <code class="inline">ping 8.8.8.8</code> شغال بس <code class="inline">ping google.com</code> فاشل — المشكلة فين؟</div>
+    <div class="options">
+      <button onclick="ans(this,'q4',false)">مفيش إنترنت خالص</button>
+      <button onclick="ans(this,'q4',false)">الكرت الشبكة بايظ</button>
+      <button onclick="ans(this,'q4',true)">الـ DNS مش شغال — الأرقام شغالة والأسماء لأ 📖</button>
+    </div>
+    <div class="feedback" id="f4"></div>
+  </div>
+</section>
+
+<!-- ========== الخلاصة ========== -->
+<section>
+  <h2><span class="num">📌</span> خلاصة المحاضرة + الواجب</h2>
+
+  <div class="recap-grid">
+    <div class="recap"><b>🪪 ip a</b> — هويتك في الشبكة: العنوان + البطاقة + الحالة</div>
+    <div class="recap"><b>🚪 ip route</b> — الـ Gateway هو مخرجك الوحيد للعالم</div>
+    <div class="recap"><b>📢 ping</b> — اختبار الحياة والاتصال، والوقت time = سرعة الاستجابة</div>
+    <div class="recap"><b>🗺️ traceroute</b> — كل Hop في رحلة الحزمة، لحد وجهتها</div>
+    <div class="recap"><b>📖 DNS</b> — مترجم الأسماء لأرقام، وأخطر نقطة لو اتلاعب فيها</div>
+    <div class="recap"><b>🔍 Troubleshooting</b> — البطاقة ← Gateway ← إنترنت ← DNS بالترتيب</div>
+  </div>
+
+  <div class="card purple">
+    <h3>📝 الواجب المنزلي</h3>
+    <ol style="margin:8px 24px">
+      <li>أنهي خريطة شبكة اللاب ولوّنها، وعلّم على الـ Gateway بدائرة مميزة ⭕</li>
+      <li>في ملف <code class="inline">homework3.txt</code>: نفّذ سلسلة الـ Troubleshooting الأربعة على جهازك وسجّل نتيجة كل خطوة (نجاح ✅ / فشل ❌) واستنتج: شبكتك سليمة ولا فيها مشكلة؟</li>
+      <li>❓ <b>سؤال التفكير:</b> لما بتفتح يوتيوب، أول سؤال بيسأله جهازك لمين؟ (تلميح: مش ليوتيوب نفسها 😉)</li>
+      <li>🎁 <b>اختياري:</b> جرّب <code class="inline">traceroute</code> لموقعين مختلفين (مثلاً موقع مصري وموقع أمريكي) وقارن عدد الـ Hops — ليه بيختلف؟</li>
+    </ol>
+  </div>
+
+  <div class="callout success">
+    <div class="icon">🔮</div>
+    <div><b>المحاضرة الجاية — الأقوى لحد الآن:</b> <b>Nmap على Kali!</b> نفس الأداة اللي عرفناها، بس بقوة Terminal الحقيقية: فحص المنافذ، معرفة الخدمات والإصدارات، وحتى تخمين نظام التشغيل — هنحوّل اللاب لبيئة اختبار حقيقية! 🐉</div>
+  </div>
+</section>
+
+<footer>
+  <p>☀️ <span class="brand">Sunshine T Academy</span> — Level 3: Kali Linux Fundamentals</p>
+  <p>Lecture 3 of 7 | المحاضرة الرابعة: Nmap — الفحص المتقدم 🐉</p>
+</footer>
+
+<script>
+function ans(btn, q, correct){
+  const quiz = document.getElementById(q);
+  quiz.querySelectorAll('button').forEach(b => b.classList.remove('correct','wrong'));
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const fb = quiz.querySelector('.feedback');
+  fb.style.display = 'block';
+  if(correct){
+    fb.innerHTML = '<span style="color:var(--accent)">✅ إجابة صحيحة! مستوى محلل شبكات حقيقي 👏</span>';
+  } else {
+    fb.innerHTML = '<span style="color:#ff7b72">❌ مش دي! ارجع للمحتوى فوق وجرب تاني 💪</span>';
+  }
+}
+</script>
+
+</div>
+</body>
+</html>
